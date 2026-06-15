@@ -29,7 +29,7 @@
 <div class="modal-backdrop" id="addModal"><div class="modal"><div class="modal-h"><div class="modal-title">+ אירוע חדש</div><button class="close" onclick="closeAdd()">✕</button></div><div class="modal-b"><div class="fields"><input id="aName" placeholder="שם מלא *"><input id="aPhone" placeholder="טלפון *"><input id="aDate" type="date"><input id="aTime" type="time"><input id="aGuests" type="number" placeholder="מוזמנים"><input id="aKids" type="number" placeholder="ילדים" value="0"><select id="aType"><option value="">סוג אירוע</option><option>יום הולדת</option><option>בר/בת מצווה</option><option>אירוע חברה / עסקי</option><option>מסיבת סיום / פרישה</option><option>ארוחת חג</option><option>אחר</option></select><select id="aStatus"><option>ממתין לתפריט</option><option>תפריט התקבל</option><option>סגור / מאושר</option><option>בוטל</option></select></div><textarea id="aNotes" style="width:100%;margin-top:10px;min-height:80px" placeholder="הערות"></textarea></div><div class="modal-f"><button class="btn btn-ghost" onclick="closeAdd()">ביטול</button><button class="btn btn-gold" onclick="saveNew()">שמור אירוע</button></div></div></div>
 <div class="toast" id="toast"></div>
 <script>
-const APPS_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbz3-tRJ7FyKBA0_YczvMIIH4mNzId53Rp9kHnTg5_qgQlM8khRadGgXb-qEf2hIJh0KTg/exec';
+const APPS_SCRIPT_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxft5bURrlBx5hQOWvpRfIOncNOtoK6IByS9LHFNcda6HyWeXFIzr7Fbxu0zv6ADqgg_g/exec';
 const LS_EVENTS='zedef_admin_events_v1';
 const LS_OVERRIDES='zedef_admin_overrides_v1';
 let events=[]; let view='table'; let currentId=null;
