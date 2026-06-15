@@ -1,0 +1,1821 @@
+
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>אירועים במסעדת הצדף</title>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold: #B89A5A;
+      --gold-light: #d4b878;
+      --dark: #1e2330;
+      --navy: #2c3652;
+      --white: #ffffff;
+      --text: #222;
+      --border: #c5b47a;
+      --danger: #c0392b;
+      --ok: #2e7d32;
+      --bg-card: rgba(255,255,255,0.97);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Assistant', sans-serif;
+      color: var(--text);
+      direction: rtl;
+      min-height: 100vh;
+      background-color: var(--dark);
+      background-image: url('https://media.base44.com/images/public/6a01bc0bf7391ac07f7a853e/1c19139d1_0R4A0647.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(20,25,38,0.84);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── PROGRESS BAR ─── */
+    .progress-bar-wrap {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(20,25,38,0.95);
+      backdrop-filter: blur(8px);
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(184,154,90,0.3);
+    }
+
+    .progress-steps {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      cursor: default;
+    }
+
+    .step-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #3a4260;
+      border: 2px solid #4a5270;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #888;
+      transition: all 0.35s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step.done .step-dot {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #fff;
+    }
+
+    .step.active .step-dot {
+      background: var(--navy);
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(184,154,90,0.2);
+    }
+
+    .step-label {
+      font-size: 10px;
+      color: #666;
+      white-space: nowrap;
+      transition: color 0.35s;
+    }
+
+    .step.done .step-label,
+    .step.active .step-label { color: var(--gold); }
+
+    .step-connector {
+      flex: 1;
+      height: 2px;
+      background: #3a4260;
+      margin-bottom: 18px;
+      transition: background 0.35s;
+      max-width: 60px;
+    }
+
+    .step-connector.done { background: var(--gold); }
+
+    /* ─── HEADER ─── */
+    .page-header {
+      position: relative;
+      z-index: 1;
+      background: rgba(20,25,38,0.72);
+      backdrop-filter: blur(6px);
+      border-bottom: 2px solid var(--gold);
+      padding: 30px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .logo-container { display: flex; align-items: center; gap: 18px; }
+
+    .logo-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #c5a96a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 2px solid var(--gold);
+    }
+
+    .logo-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+    .logo-text .main-title {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+
+    .logo-text .sub-title {
+      font-size: 13px;
+      color: #bbb;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .page-title {
+      color: var(--white);
+      font-size: 26px;
+      font-weight: 300;
+      margin-top: 14px;
+      letter-spacing: 2px;
+    }
+
+    .gold-line {
+      height: 2px;
+      background: linear-gradient(90deg,transparent,var(--gold),transparent);
+      margin: 6px auto 0;
+      width: 200px;
+    }
+
+    /* ─── LAYOUT ─── */
+    .page-body {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+      align-items: flex-start;
+    }
+
+    .form-column { flex: 1; min-width: 0; }
+
+    /* ─── STICKY SUMMARY ─── */
+    .sticky-summary {
+      width: 300px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 80px;
+    }
+
+    @media (max-width: 960px) {
+      .page-body { flex-direction: column; }
+      .sticky-summary { width: 100%; position: static; order: -1; }
+    }
+
+    /* ─── CARDS ─── */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 28px rgba(0,0,0,0.22);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+
+    .section-card:focus-within {
+      box-shadow: 0 4px 28px rgba(0,0,0,0.28), 0 0 0 2px rgba(184,154,90,0.18);
+    }
+
+    .section-header {
+      background-color: var(--navy);
+      padding: 13px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-header h2 {
+      color: var(--gold);
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .section-body { padding: 22px; }
+
+    /* ─── FORM FIELDS ─── */
+    .form-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .form-group { flex: 1; min-width: 190px; }
+    .form-group.full { flex: 0 0 100%; }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 5px;
+    }
+
+    input[type="text"], input[type="email"], input[type="tel"],
+    input[type="number"], input[type="date"], input[type="time"],
+    select, textarea {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1.5px solid #d0ccc3;
+      border-radius: 6px;
+      font-family: 'Assistant', sans-serif;
+      font-size: 16px;
+      color: var(--text);
+      background: #fafaf8;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      direction: rtl;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(184,154,90,0.15);
+    }
+
+    input.field-error, select.field-error {
+      border-color: var(--danger) !important;
+      background: #fff8f8;
+    }
+
+    textarea { resize: vertical; min-height: 86px; }
+
+    .required-star { color: var(--danger); margin-right: 2px; }
+
+    /* ─── INFO BOXES ─── */
+    .info-box {
+      background: #f9f5ec;
+      border-right: 3px solid var(--gold);
+      padding: 11px 15px;
+      margin-bottom: 14px;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    .info-static {
+      background: #f3f0f9;
+      border-right: 3px solid var(--navy);
+      padding: 10px 15px;
+      border-radius: 4px;
+      font-size: 14px;
+      color: #444;
+      line-height: 1.7;
+      margin-top: 10px;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #ddd, transparent);
+      margin: 18px 0;
+    }
+
+    /* ─── MENU ITEMS ─── */
+    .menu-category { margin-bottom: 18px; }
+
+    .menu-category-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gold);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .menu-items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 6px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      cursor: pointer;
+      padding: 7px 9px;
+      border-radius: 6px;
+      border: 1.5px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .checkbox-item:hover { background: #f7f3eb; border-color: #e8dfc7; }
+
+    .checkbox-item:has(input:checked) {
+      background: #fdf5e0;
+      border-color: var(--gold);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--gold);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .checkbox-item input[type="checkbox"]:disabled {
+      opacity: 0.35;
+    }
+
+    .checkbox-item input[type="checkbox"]:disabled + label { color: #bbb; cursor: default; }
+
+    .checkbox-item label {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text);
+      cursor: pointer;
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* ─── RADIO TOGGLE ─── */
+    .radio-group {
+      display: flex;
+      gap: 0;
+      background: #f0eee8;
+      border-radius: 8px;
+      padding: 4px;
+      width: fit-content;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      cursor: pointer;
+      padding: 9px 18px;
+      border-radius: 6px;
+      background: transparent;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .radio-item.selected {
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+    }
+
+    .radio-item.selected label { color: var(--gold); font-weight: 700; }
+
+    .radio-item input[type="radio"] {
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    .radio-item label {
+      font-size: 15px;
+      font-weight: 400;
+      color: #666;
+      cursor: pointer;
+      margin: 0;
+      transition: color 0.2s;
+    }
+
+    /* ─── COUNT BADGE ─── */
+    .count-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #888;
+      background: #f4f2ee;
+      border-radius: 20px;
+      padding: 4px 12px;
+      transition: all 0.2s;
+    }
+
+    .count-badge.ok {
+      color: var(--ok);
+      background: #edf7ee;
+    }
+
+    .count-badge.err {
+      color: var(--danger);
+      background: #fef0ee;
+    }
+
+    .count-badge .check-icon { display: none; }
+    .count-badge.ok .check-icon { display: inline; }
+
+    .error-text {
+      display: none;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 6px;
+      padding: 5px 10px;
+      background: #fef0ee;
+      border-radius: 4px;
+      border-right: 3px solid var(--danger);
+    }
+
+    /* ─── SUMMARY CARD ─── */
+    .summary-card {
+      background: var(--navy);
+      border-radius: 10px;
+      box-shadow: 0 4px 28px rgba(0,0,0,0.30);
+      overflow: hidden;
+    }
+
+    .summary-header {
+      background: var(--dark);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 2px solid var(--gold);
+    }
+
+    .summary-header h2 {
+      color: var(--gold);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .summary-body { padding: 18px; }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      font-size: 14px;
+    }
+
+    .summary-row .s-label { color: #aaa; }
+    .summary-row .s-value { color: var(--gold); font-weight: 600; }
+
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .summary-total {
+      padding: 12px 0 4px;
+      margin-top: 4px;
+      border-top: 2px solid var(--gold);
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .summary-total .s-value {
+      color: var(--gold);
+      font-size: 22px;
+    }
+
+    .summary-note {
+      font-size: 11px;
+      color: #888;
+      text-align: center;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    /* ─── SUBMIT ─── */
+    .submit-section {
+      text-align: center;
+      padding: 10px 0 4px;
+    }
+
+    .submit-btn,
+    .secondary-btn {
+      border: none;
+      padding: 15px 38px;
+      font-family: 'Assistant', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      min-height: 52px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #c8a84b, #9a7f38);
+      color: var(--white);
+      box-shadow: 0 4px 16px rgba(184,154,90,0.3);
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, #d4b458, #a88840);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(184,154,90,0.4);
+    }
+
+    .submit-btn:active:not(:disabled) { transform: translateY(0); }
+
+    .secondary-btn {
+      background: #eef0f5;
+      color: var(--navy);
+    }
+
+    .secondary-btn:hover { background: #e2e5ee; }
+
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── FOOTER ─── */
+    .footer-icons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 24px 0 8px;
+      font-size: 26px;
+      color: var(--gold);
+    }
+
+    .footer-contact {
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+      line-height: 1.8;
+      padding-bottom: 20px;
+    }
+
+    /* ─── THANK YOU ─── */
+    .thank-you {
+      display: none;
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 40px 30px;
+      text-align: center;
+      box-shadow: 0 4px 28px rgba(0,0,0,0.22);
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .thank-you .check-circle {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #2e7d32, #4caf50);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 36px;
+    }
+
+    .thank-you h2 {
+      color: var(--navy);
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .thank-you p {
+      font-size: 17px;
+      line-height: 1.7;
+      color: #444;
+    }
+
+    /* ─── MODAL ─── */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 20;
+      padding: 18px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 10px;
+      max-width: 720px;
+      width: 100%;
+      max-height: 88vh;
+      overflow: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+      animation: slideUp 0.25s ease;
+    }
+
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .modal-header {
+      background: var(--navy);
+      color: var(--gold);
+      padding: 16px 22px;
+      font-size: 20px;
+      font-weight: 700;
+      border-bottom: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .modal-body {
+      padding: 22px;
+      line-height: 1.7;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .modal-body pre {
+      white-space: pre-wrap;
+      font-family: 'Assistant', sans-serif;
+      font-size: 14px;
+    }
+
+    .modal-section {
+      background: #f8f7f4;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+    }
+
+    .modal-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .modal-section-content {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.6;
+    }
+
+    .modal-total-box {
+      background: var(--navy);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-total-box .label { color: #ccc; font-size: 15px; }
+    .modal-total-box .value { color: var(--gold); font-size: 22px; font-weight: 700; }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      padding: 0 22px 22px;
+      flex-wrap: wrap;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      body { background-attachment: scroll; }
+      .page-header { padding: 24px 16px; }
+      .logo-container { gap: 12px; }
+      .logo-circle { width: 64px; height: 64px; }
+      .logo-text .main-title { font-size: 36px; }
+      .page-title { font-size: 22px; }
+      .page-body { padding: 16px 12px 50px; gap: 16px; }
+      .section-body, .summary-body { padding: 16px; }
+      .form-row { flex-direction: column; gap: 12px; }
+      .form-group { min-width: unset; }
+      .menu-items-grid { grid-template-columns: 1fr 1fr; }
+      .radio-item { padding: 8px 12px; }
+      .submit-btn, .secondary-btn { width: 100%; padding: 14px 18px; }
+      .step-label { display: none; }
+      .progress-steps { gap: 4px; }
+    }
+
+    @media (max-width: 380px) {
+      .menu-items-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="logo-container">
+    <div class="logo-text">
+      <div class="main-title">הצדף</div>
+      <div class="sub-title">מסעדת הדגים ופירות הים של ראשון לציון</div>
+    </div>
+    <div class="logo-circle">
+      <img src="https://media.base44.com/images/public/6a01bc0bf7391ac07f7a853e/b2bf014df_aa7637b2-8d58-44c2-a4e9-91c7f3430ac8.jpg" alt="הצדף לוגו" onerror="this.style.display='none'"/>
+    </div>
+  </div>
+  <div class="page-title">בחירת תפריט לאירוע</div>
+  <div class="gold-line"></div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar-wrap">
+  <div class="progress-steps">
+    <div class="step active" id="step1">
+      <div class="step-dot">1</div>
+      <div class="step-label">פרטי האירוע</div>
+    </div>
+    <div class="step-connector" id="conn1"></div>
+    <div class="step" id="step2">
+      <div class="step-dot">2</div>
+      <div class="step-label">שתייה</div>
+    </div>
+    <div class="step-connector" id="conn2"></div>
+    <div class="step" id="step3">
+      <div class="step-dot">3</div>
+      <div class="step-label">סלטים</div>
+    </div>
+    <div class="step-connector" id="conn3"></div>
+    <div class="step" id="step4">
+      <div class="step-dot">4</div>
+      <div class="step-label">מנות</div>
+    </div>
+    <div class="step-connector" id="conn4"></div>
+    <div class="step" id="step5">
+      <div class="step-dot">5</div>
+      <div class="step-label">קינוח</div>
+    </div>
+    <div class="step-connector" id="conn5"></div>
+    <div class="step" id="step6">
+      <div class="step-dot">✓</div>
+      <div class="step-label">שליחה</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-body">
+<div class="form-column">
+<form id="eventForm" novalidate>
+
+  <!-- ── 1. פרטי האירוע ── -->
+  <div class="section-card" data-section="1">
+    <div class="section-header"><span>📋</span><h2>פרטי האירוע</h2></div>
+    <div class="section-body">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="fullName">שם מלא <span class="required-star">*</span></label>
+          <input type="text" id="fullName" autocomplete="name" required placeholder="ישראל ישראלי" />
+        </div>
+        <div class="form-group">
+          <label for="phone">טלפון נייד <span class="required-star">*</span></label>
+          <input type="tel" id="phone" inputmode="tel" autocomplete="tel" placeholder="050-0000000" required />
+          <div class="error-text" id="phoneError">נא להזין מספר נייד ישראלי תקין (050/052/053/054/055/058)</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">אימייל</label>
+          <input type="email" id="email" autocomplete="email" placeholder="example@gmail.com" />
+          <div class="error-text" id="emailError">כתובת האימייל אינה תקינה.</div>
+        </div>
+        <div class="form-group">
+          <label for="company">שם החברה / הארגון</label>
+          <input type="text" id="company" placeholder="אם רלוונטי" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="eventDate">תאריך האירוע <span class="required-star">*</span></label>
+          <input type="date" id="eventDate" required />
+          <div id="eventDayDisplay" style="margin-top:5px;font-size:13px;color:var(--gold);font-weight:600;min-height:18px;"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="eventTime">שעת האירוע <span class="required-star">*</span></label>
+          <input type="time" id="eventTime" required />
+        </div>
+
+        <div class="form-group">
+          <label for="guestCount">מספר מוזמנים כולל ילדים <span class="required-star">*</span></label>
+          <input type="number" id="guestCount" min="20" max="120" placeholder="מינ׳ 20, מקס׳ 120" required />
+          <div class="error-text" id="guestError">מספר המוזמנים צריך להיות בין 20 ל־120.</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="eventType">סוג האירוע</label>
+          <select id="eventType">
+            <option value="">בחר סוג אירוע...</option>
+            <option>יום הולדת</option>
+            <option>בר/בת מצווה</option>
+            <option>אירוע חברה / עסקי</option>
+            <option>מסיבת סיום / פרישה</option>
+            <option>ארוחת חג</option>
+            <option>אחר</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="seatingStyle">סידור ישיבה / אופי האירוע</label>
+          <select id="seatingStyle">
+            <option value="">בחר אם ידוע...</option>
+            <option>ישיבה רגילה סביב שולחנות</option>
+            <option>שולחן אבירים / שולחן ארוך</option>
+            <option>אירוע עסקי / ישיבת הנהלה</option>
+            <option>אירוע משפחתי</option>
+            <option>כולל נאומים / ברכות</option>
+            <option>כולל מצגת / הקרנה</option>
+            <option>לא בטוח / אשמח להתייעץ</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full">
+          <label>ציוד / צרכים מיוחדים</label>
+          <div class="menu-items-grid">
+            <div class="checkbox-item"><input type="checkbox" class="equipment-check" value="מקרן"/><label>🎥 מקרן</label></div>
+            <div class="checkbox-item"><input type="checkbox" class="equipment-check" value="מיקרופון"/><label>🎤 מיקרופון</label></div>
+            <div class="checkbox-item"><input type="checkbox" class="equipment-check" value="שולחן מתנות"/><label>🎁 שולחן מתנות</label></div>
+            <div class="checkbox-item"><input type="checkbox" class="equipment-check" value="מוזיקה"/><label>🎵 מוזיקה</label></div>
+            <div class="checkbox-item"><input type="checkbox" class="equipment-check" value="לא בטוח"/><label>❓ לא בטוח / נבדוק בהמשך</label></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── 2. שתייה ── -->
+  <div class="section-card" data-section="2">
+    <div class="section-header"><span>🥤</span><h2>שתייה קלה | ללא הגבלה</h2></div>
+    <div class="section-body">
+
+      <div class="info-box">
+        שתייה קלה כלולה לכל האורחים — בקבוקים אישיים: קוקה קולה, קולה זירו, ספרייט, ספרייט זירו, אשכוליות, תפוזים, ענבים, פיוז טי, בירה שחורה, סודה, קנקני מים ולימונדה קרה.
+      </div>
+
+      <div class="menu-category">
+        <div class="menu-category-title">כוסות יין ובירה <span style="font-size:12px;color:#999;font-weight:400;">30 ש״ח לסועד</span></div>
+        <div class="radio-group" id="wineOption">
+          <div class="radio-item selected" onclick="selectRadio(this,'wineOption')">
+            <input type="radio" name="wineOption" value="yes" checked />
+            <label>כן — 30 ש״ח לסועד</label>
+          </div>
+          <div class="radio-item" onclick="selectRadio(this,'wineOption')">
+            <input type="radio" name="wineOption" value="no" />
+            <label>לא, תודה</label>
+          </div>
+        </div>
+
+        <div class="info-static" style="margin-top:12px;">
+          יין הבית – אביב אדום, יקב הרי גליל / ריזלינג, גמלא, יקבי רמת הגולן<br/>
+          בירות מהחבית – קרלסברג וטובורג אדום
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="menu-category">
+        <div class="menu-category-title">אלכוהול מהבית</div>
+        <div class="info-static">
+          ניתן להביא אלכוהול מהבית. הבאת אלכוהול כרוכה בדמי חליצה: ₪100 לבקבוק יין, ו־₪150 ומעלה לבקבוקי אלכוהול אחרים. החיוב ייבדק ויתווסף ידנית במידת הצורך.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── 3. סלטים ── -->
+  <div class="section-card" data-section="3">
+    <div class="section-header"><span>🥗</span><h2>סלטי פתיחה ולחמים — 8 לבחירה</h2></div>
+    <div class="section-body">
+      <div class="info-box">יש לבחור <strong>בדיוק 8 סלטים</strong> מהרשימה. לחם מחמצת לבן ושחור מוגש לשולחן.</div>
+
+      <div class="menu-items-grid">
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="כרוב וגזר"/><label>כרוב וגזר</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="סלסה"/><label>סלסה</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="טחינה"/><label>טחינה</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="סלט ביצים"/><label>סלט ביצים</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="צזיקי"/><label>צזיקי</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="חציל בצ'ילי"/><label>חציל בצ׳ילי</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="סלק"/><label>סלק</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="כבד קצוץ"/><label>כבד קצוץ</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="איקרה"/><label>איקרה</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="מטיאס"/><label>מטיאס</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="כרובית מגורדת"/><label>כרובית מגורדת</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="שומר"/><label>שומר</label></div>
+        <div class="checkbox-item"><input type="checkbox" class="salad-check" value="שום קונפי"/><label>שום קונפי</label></div>
+      </div>
+
+      <div id="saladCount" class="count-badge">
+        <span class="check-icon">✓</span>
+        <span class="count-text">נבחרו: 0 / 8</span>
+      </div>
+      <div class="error-text" id="saladError">יש לבחור בדיוק 8 סלטים.</div>
+      <div class="info-static" style="margin-top:12px;">🍞 לחם מחמצת לבן + לחם מחמצת שחור — מוגש לשולחן</div>
+    </div>
+  </div>
+
+  <!-- ── 4. מנות ביניים ── -->
+  <div class="section-card" data-section="4">
+    <div class="section-header"><span>🌸</span><h2>מנות ביניים — 3 לבחירה</h2></div>
+    <div class="section-body">
+      <div class="info-box">במרכז השולחן — <strong>40 ש״ח לסועד</strong>. אם מוסיפים מנות ביניים, יש לבחור בדיוק 3.</div>
+
+      <div class="radio-group" id="interOption">
+        <div class="radio-item selected" onclick="selectRadio(this,'interOption')">
+          <input type="radio" name="interOption" value="yes" checked />
+          <label>כן — 40 ש״ח לסועד</label>
+        </div>
+        <div class="radio-item" onclick="selectRadio(this,'interOption')">
+          <input type="radio" name="interOption" value="no" />
+          <label>ללא מנות ביניים</label>
+        </div>
+      </div>
+
+      <div id="interMenuSection" style="margin-top:16px;">
+        <div class="menu-items-grid">
+          <div class="checkbox-item"><input type="checkbox" class="inter-check" value="פטריות מוקפצות בשום, שמן זית ובזיליקום"/><label>פטריות מוקפצות בשום, שמן זית ובזיליקום</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="inter-check" value="סלט קריספי (כרוב, צ'ילי, כוסברה, רוטב חמאת בוטנים + צ'יקן/שרימפס)"/><label>סלט קריספי <span style="font-size:12px;color:#888;">(כרוב, צ׳ילי, כוסברה, חמאת בוטנים)</span></label></div>
+          <div class="checkbox-item"><input type="checkbox" class="inter-check" value="קרפצ'יו פילה בקר בליווי פרמזן"/><label>קרפצ׳יו פילה בקר + פרמזן</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="inter-check" value="סביצה סלמון"/><label>סביצה סלמון</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="inter-check" value="פרח כרובית מטוגנת עם סילאן, טחינה ופיצוחים"/><label>פרח כרובית מטוגנת + סילאן, טחינה ופיצוחים</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="inter-check" value="חציל קלוי עם טחינה גולמית, סילאן, תימין וגבינת טולום"/><label>חציל קלוי + טחינה גולמית, סילאן וגבינת טולום</label></div>
+        </div>
+
+        <div id="interCount" class="count-badge">
+          <span class="check-icon">✓</span>
+          <span class="count-text">נבחרו: 0 / 3</span>
+        </div>
+        <div class="error-text" id="interError">יש לבחור בדיוק 3 מנות ביניים.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. מנות עיקריות ── -->
+  <div class="section-card" data-section="5">
+    <div class="section-header"><span>🍽️</span><h2>מנות עיקריות — 6 לבחירה</h2></div>
+    <div class="section-body">
+      <div class="info-box">יש לבחור <strong>בדיוק 6 מנות עיקריות</strong> — שילוב חופשי מדגים, בשרים ופירות ים.</div>
+
+      <div class="menu-category">
+        <div class="menu-category-title">🐟 דגים</div>
+        <div class="menu-items-grid">
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="לברק בגריל / מטוגן"/><label>לברק בגריל / מטוגן</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="פילה דניס בגריל"/><label>פילה דניס בגריל</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="פילה סלמון בגריל"/><label>פילה סלמון בגריל</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="לברק פירות ים"/><label>לברק פירות ים</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="דניס ברוטב גליל"/><label>דניס ברוטב גליל</label></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="menu-category">
+        <div class="menu-category-title">🥩 בשרים</div>
+        <div class="menu-items-grid">
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="סטייק אנטריקוט (250 גרם)"/><label>סטייק אנטריקוט 250 גרם</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="טיבון טלה"/><label>טיבון טלה</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="סטייק פרגית"/><label>סטייק פרגית</label></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="menu-category">
+        <div class="menu-category-title">🦐 פירות ים</div>
+        <div class="menu-items-grid">
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="שרימפס בחמאה ושום / מטוגן"/><label>שרימפס בחמאה ושום / מטוגן</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="קלמרי / ראשי קלמרי מטוגנים"/><label>קלמרי / ראשי קלמרי מטוגנים</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="שרימפס גליל (שמנת ורוקפור)"/><label>שרימפס גליל <span style="font-size:12px;color:#888;">(שמנת ורוקפור)</span></label></div>
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="מעורב פירות ים מטוגנים"/><label>מעורב פירות ים מטוגנים</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="main-check" value="שרימפס בקארי"/><label>שרימפס בקארי</label></div>
+        </div>
+      </div>
+
+      <div id="mainCount" class="count-badge" style="margin-bottom:6px;">
+        <span class="check-icon">✓</span>
+        <span class="count-text">נבחרו: 0 / 6</span>
+      </div>
+      <div class="error-text" id="mainError">יש לבחור בדיוק 6 מנות עיקריות.</div>
+
+      <div class="divider"></div>
+
+      <div class="menu-category">
+        <div class="menu-category-title">🥦 צמחוני / טבעוני</div>
+        <div class="info-static">
+          ניתן להזמין מנות צמחוניות וטבעוניות במועד האירוע — אין צורך לבחור מראש.<br/><br/>
+          <strong>צמחוני:</strong> ריזוטו שמנת פטריות, פסטות ברטבים<br/>
+          <strong>טבעוני:</strong> המבורגר ביונד, ריזוטו שמן זית וירקות שורש
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="menu-category">
+        <div class="menu-category-title">🍟 תוספות לצד המנה העיקרית — 2 לבחירה</div>
+        <div class="menu-items-grid">
+          <div class="checkbox-item"><input type="checkbox" class="side-check" value="פירה חלבי"/><label>פירה חלבי</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="side-check" value="אורז לבן"/><label>אורז לבן</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="side-check" value="סלט ירוק ברוטב ויניגרט"/><label>סלט ירוק ברוטב ויניגרט</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="side-check" value="צ'יפס"/><label>צ׳יפס</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="side-check" value="תפוחי אדמה בחמאה"/><label>תפוחי אדמה בחמאה</label></div>
+        </div>
+        <div id="sideCount" class="count-badge">
+          <span class="check-icon">✓</span>
+          <span class="count-text">נבחרו: 0 / 2</span>
+        </div>
+        <div class="error-text" id="sideError">יש לבחור בדיוק 2 תוספות.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 6. ילדים ── -->
+  <div class="section-card" data-section="6">
+    <div class="section-header"><span>👶</span><h2>מנות ילדים (עד גיל 10)</h2></div>
+    <div class="section-body">
+      <div class="form-row">
+        <div class="form-group" style="max-width:280px;">
+          <label for="kidsCount">כמות ילדים מתוך כלל המוזמנים</label>
+          <input type="number" id="kidsCount" min="0" max="50" value="0" />
+          <div class="error-text" id="kidsError">כמות הילדים לא יכולה להיות גבוהה ממספר המוזמנים.</div>
+        </div>
+      </div>
+      <div class="info-static">
+        מנות הילדים ייקבעו במועד האירוע — כל מנה כוללת צ׳יפס.<br/><br/>
+        <strong>אפשרויות לילדים:</strong><br/>
+        שניצלונים וצ׳יפס • סטייק פרגית וצ׳יפס • פילה דניס וצ׳יפס • פסטה ברוטב עגבניות • פסטה שמנת פטריות
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 7. קינוח ── -->
+  <div class="section-card" data-section="5">
+    <div class="section-header"><span>🍰</span><h2>קינוח ושתייה חמה</h2></div>
+    <div class="section-body">
+      <div class="info-static">
+        <strong>קינוח אישי לכל סועד — כלול במחיר</strong><br/>
+        חלבי: קוביית שוקולד חמה בליווי קרם מסקרפונה ופירות יער<br/>
+        פרווה: גלידת סורבה בטעמים תות / מנגו / קוקוס<br/><br/>
+        <strong>שתייה חמה — כלולה במחיר</strong><br/>
+        תה נענע • קפה שחור • אספרסו
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 8. הערות ── -->
+  <div class="section-card" data-section="6">
+    <div class="section-header"><span>📝</span><h2>הערות ובקשות מיוחדות</h2></div>
+    <div class="section-body">
+
+      <div class="form-group full">
+        <label>סימון מהיר לבקשות תזונה / רגישויות</label>
+        <div class="menu-items-grid" style="margin-top:8px;">
+          <div class="checkbox-item"><input type="checkbox" class="diet-check" value="צמחונים"/><label>🌿 צמחונים</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="diet-check" value="טבעונים"/><label>🌱 טבעונים</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="diet-check" value="ללא גלוטן"/><label>🌾 ללא גלוטן</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="diet-check" value="אלרגיות חמורות"/><label>⚠️ אלרגיות חמורות</label></div>
+          <div class="checkbox-item"><input type="checkbox" class="diet-check" value="לא בטוח"/><label>❓ לא בטוח / נעדכן בהמשך</label></div>
+        </div>
+      </div>
+
+      <div class="form-group full" style="margin-top:16px;">
+        <label for="allergies">אלרגיות / דיאטות / בקשות מיוחדות</label>
+        <textarea id="allergies" placeholder="לדוגמה: 3 סועדים ללא גלוטן, 2 טבעוניים, אלרגיה חמורה לאגוזים..."></textarea>
+      </div>
+
+      <div class="form-group full" style="margin-top:12px;">
+        <label for="notes">הערות נוספות לאירוע</label>
+        <textarea id="notes" placeholder="כל מה שחשוב לנו לדעת..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box" style="text-align:center;margin-bottom:16px;">
+    שליחת הטופס אינה מהווה אישור סופי להזמנה. לאחר קבלת הפרטים, המסעדה תחזור אליך לאישור ודגשים.
+  </div>
+
+  <div class="submit-section">
+    <button type="submit" class="submit-btn" id="submitBtn">
+      בדיקה ואישור לפני שליחה ›
+    </button>
+  </div>
+
+</form>
+
+<div class="thank-you" id="thankYou">
+  <div class="check-circle">✓</div>
+  <h2>הטופס נשלח בהצלחה!</h2>
+  <p>
+    קיבלנו את בחירת התפריט ופרטי האירוע.<br/>
+    הבקשה תיבדק על ידי המסעדה ונחזור אליך לאישור סופי.
+  </p>
+  <div class="info-static" style="text-align:right;margin-top:20px;display:inline-block;">
+    📞 טל׳: 03-9627111<br/>
+    📱 ניב: 050-6536629<br/>
+    ✉️ מייל: zedefr@gmail.com
+  </div>
+</div>
+
+<div class="footer-icons">🐟 🦐 🐙 🦞 🌊</div>
+<div class="footer-contact">
+  טל׳: 03-9627111 &bull; פקס: 03-9513006 &bull; ניב: 050-6536629<br/>
+  מייל: zedefr@gmail.com &bull; ח.פ: 513424937 &bull; אתר: www.zedef.co.il
+</div>
+</div><!-- /form-column -->
+
+<!-- ── STICKY SUMMARY ── -->
+<div class="sticky-summary">
+  <div class="summary-card">
+    <div class="summary-header"><span>💰</span><h2>סיכום מחיר</h2></div>
+    <div class="summary-body">
+
+      <div class="summary-row">
+        <span class="s-label" id="basePriceLabel">מחיר בסיס לאדם</span>
+        <span class="s-value" id="basePriceVal">₪265</span>
+      </div>
+
+      <div class="summary-row" id="wineRow">
+        <span class="s-label">יין ובירה</span>
+        <span class="s-value">+₪30 לסועד</span>
+      </div>
+
+      <div class="summary-row" id="interRow">
+        <span class="s-label">מנות ביניים</span>
+        <span class="s-value">+₪40 לסועד</span>
+      </div>
+
+      <div class="summary-row">
+        <span class="s-label">מחיר לבוגר</span>
+        <span class="s-value" id="pricePerPerson">₪295</span>
+      </div>
+
+      <div class="summary-row">
+        <span class="s-label">מוזמנים</span>
+        <span class="s-value" id="guestCountDisplay">—</span>
+      </div>
+
+      <div class="summary-row" id="adultRow" style="display:none;">
+        <span class="s-label">בוגרים לחיוב</span>
+        <span class="s-value" id="adultCountDisplay">—</span>
+      </div>
+
+      <div class="summary-row" id="kidsRow" style="display:none;">
+        <span class="s-label" id="kidsLabel">מנות ילדים</span>
+        <span class="s-value" id="kidsVal">—</span>
+      </div>
+
+      <div class="summary-total">
+        <span>לפני שירות</span>
+        <span class="s-value" id="totalBeforeService">₪0</span>
+      </div>
+
+      <div class="summary-row">
+        <span class="s-label">שירות (15%)</span>
+        <span class="s-value" id="serviceCharge">₪0</span>
+      </div>
+
+      <div class="summary-total" style="border-top:2px solid rgba(255,255,255,0.2);margin-top:8px;padding-top:12px;">
+        <span>סה״כ כולל שירות</span>
+        <span class="s-value" id="totalWithService">₪0</span>
+      </div>
+
+      <div class="summary-note">* אומדן ראשוני בלבד — אינו אישור סופי.</div>
+      <div class="summary-note">** אלכוהול מהבית כרוך בדמי חליצה.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page-body -->
+
+<!-- ── MODAL ── -->
+<div class="modal-backdrop" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+  <div class="modal">
+    <div class="modal-header" id="confirmTitle">
+      📋 אישור פרטי האירוע לפני שליחה
+    </div>
+    <div class="modal-body" id="confirmBody">
+      <!-- filled by JS -->
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="secondary-btn" onclick="closeConfirm()">← חזרה לעריכה</button>
+      <button type="button" class="submit-btn" id="finalSendBtn" onclick="sendForm()">
+        <span class="spinner" id="sendSpinner"></span>
+        <span id="sendBtnText">מאשר/ת ושולח/ת</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let pendingBody = '';
+
+  const dayNames = { 0:'ראשון', 1:'שני', 2:'שלישי', 3:'רביעי', 4:'חמישי', 5:'שישי', 6:'שבת' };
+
+  // ── date → auto day display ──
+  document.getElementById('eventDate').addEventListener('change', function() {
+    if (!this.value) {
+      document.getElementById('eventDayDisplay').textContent = '';
+      updateSummary();
+      return;
+    }
+    const [y,m,d] = this.value.split('-').map(Number);
+    const dateObj = new Date(y, m-1, d);
+    const dow = dateObj.getDay();
+    const dayName = 'יום ' + dayNames[dow];
+    const isWeekend = dow === 5 || dow === 6;
+    document.getElementById('eventDayDisplay').textContent =
+      dayName + (isWeekend ? ' — תמחור שישי–שבת' : ' — תמחור ראשון–חמישי');
+    document.getElementById('eventDayDisplay').style.color = isWeekend ? '#c8903a' : '#2e7d32';
+    updateSummary();
+
+    // min date = today
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    if (this.value < todayStr) {
+      this.classList.add('field-error');
+      this.title = 'תאריך האירוע לא יכול להיות בעבר';
+    } else {
+      this.classList.remove('field-error');
+      this.title = '';
+    }
+    updateProgress();
+  });
+
+  // set min date to today
+  document.addEventListener('DOMContentLoaded', () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('eventDate').min = today;
+  });
+
+  // ── radio toggle ──
+  function selectRadio(el, name) {
+    document.querySelectorAll('#' + name + ' .radio-item').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+    el.querySelector('input[type="radio"]').checked = true;
+
+    if (name === 'interOption') {
+      const isYes = el.querySelector('input').value === 'yes';
+      document.getElementById('interMenuSection').style.display = isYes ? 'block' : 'none';
+      if (!isYes) {
+        document.querySelectorAll('.inter-check').forEach(cb => cb.checked = false);
+        updateCount('.inter-check', 'interCount', 3);
+        updateDisabled('.inter-check', 3);
+        showError('interError', false);
+      }
+    }
+    updateSummary();
+    updateProgress();
+  }
+
+  // ── format currency ──
+  function fmt(n) {
+    return '₪' + Math.round(n).toLocaleString('he-IL');
+  }
+
+  function v(id) { return document.getElementById(id)?.value || ''; }
+
+  function checked(selector) {
+    return [...document.querySelectorAll(selector + ':checked')].map(c => c.value);
+  }
+
+  function countChecked(selector) { return checked(selector).length; }
+
+  function isWeekendDay() {
+    const dateVal = v('eventDate');
+    if (!dateVal) return false;
+    const [y,m,d] = dateVal.split('-').map(Number);
+    const dow = new Date(y, m-1, d).getDay();
+    return dow === 5 || dow === 6;
+  }
+
+  function getDayText() {
+    const dateVal = v('eventDate');
+    if (!dateVal) return '—';
+    const [y,m,d] = dateVal.split('-').map(Number);
+    const dow = new Date(y, m-1, d).getDay();
+    return 'יום ' + dayNames[dow];
+  }
+
+  // ── count badge ──
+  function updateCount(selector, countId, max) {
+    const el = document.getElementById(countId);
+    if (!el) return;
+    const c = countChecked(selector);
+    el.querySelector('.count-text').textContent = 'נבחרו: ' + c + ' / ' + max;
+    el.classList.toggle('ok', c === max);
+    el.classList.toggle('err', c > 0 && c !== max);
+  }
+
+  function updateDisabled(selector, max) {
+    const boxes = [...document.querySelectorAll(selector)];
+    const c = boxes.filter(b => b.checked).length;
+    boxes.forEach(b => { b.disabled = !b.checked && c >= max; });
+  }
+
+  function setupLimit(selector, countId, max) {
+    document.querySelectorAll(selector).forEach(cb => {
+      cb.addEventListener('change', () => {
+        updateCount(selector, countId, max);
+        updateDisabled(selector, max);
+        updateProgress();
+      });
+    });
+    updateCount(selector, countId, max);
+    updateDisabled(selector, max);
+  }
+
+  setupLimit('.salad-check', 'saladCount', 8);
+  setupLimit('.inter-check', 'interCount', 3);
+  setupLimit('.main-check', 'mainCount', 6);
+  setupLimit('.side-check', 'sideCount', 2);
+
+  // ── live input events for summary ──
+  ['guestCount','kidsCount'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => { updateSummary(); updateProgress(); });
+  });
+
+  // ── summary calculation ──
+  function updateSummary() {
+    const isWeekend = isWeekendDay();
+    const baseAdult = isWeekend ? 310 : 265;
+    const baseKid   = isWeekend ? 220 : 180;
+
+    const wineYes  = document.querySelector('input[name="wineOption"]:checked')?.value === 'yes';
+    const interYes = document.querySelector('input[name="interOption"]:checked')?.value === 'yes';
+
+    const perPerson = baseAdult + (wineYes ? 30 : 0) + (interYes ? 40 : 0);
+
+    const guests = parseInt(v('guestCount')) || 0;
+    const kids   = parseInt(v('kidsCount'))  || 0;
+    const adults = Math.max(guests - kids, 0);
+
+    const kidsTotal  = kids * baseKid;
+    const totalBase  = adults * perPerson + kidsTotal;
+    const service    = totalBase * 0.15;
+
+    document.getElementById('basePriceLabel').textContent = isWeekend ? 'בסיס (שישי–שבת)' : 'בסיס (א׳–ה׳)';
+    document.getElementById('basePriceVal').textContent = fmt(baseAdult);
+
+    document.getElementById('wineRow').style.display  = wineYes  ? 'flex' : 'none';
+    document.getElementById('interRow').style.display = interYes ? 'flex' : 'none';
+
+    document.getElementById('pricePerPerson').textContent = fmt(perPerson);
+    document.getElementById('guestCountDisplay').textContent = guests > 0 ? guests + ' אנשים' : '—';
+
+    if (guests > 0) {
+      document.getElementById('adultRow').style.display = 'flex';
+      document.getElementById('adultCountDisplay').textContent = adults + ' בוגרים';
+    } else {
+      document.getElementById('adultRow').style.display = 'none';
+    }
+
+    if (kids > 0) {
+      document.getElementById('kidsRow').style.display = 'flex';
+      document.getElementById('kidsLabel').textContent = 'ילדים (' + kids + ' × ' + fmt(baseKid) + ')';
+      document.getElementById('kidsVal').textContent = fmt(kidsTotal);
+    } else {
+      document.getElementById('kidsRow').style.display = 'none';
+    }
+
+    document.getElementById('totalBeforeService').textContent = fmt(totalBase);
+    document.getElementById('serviceCharge').textContent = fmt(service);
+    document.getElementById('totalWithService').textContent = fmt(totalBase + service);
+  }
+
+  // ── progress steps ──
+  function updateProgress() {
+    const s1 = v('fullName') && v('phone') && v('eventDate') && v('eventTime') && parseInt(v('guestCount')) >= 20;
+    const s2 = true; // drinks always have default
+    const s3 = countChecked('.salad-check') === 8;
+    const interYes = document.querySelector('input[name="interOption"]:checked')?.value === 'yes';
+    const s4 = !interYes || countChecked('.inter-check') === 3;
+    const s5 = countChecked('.main-check') === 6 && countChecked('.side-check') === 2;
+
+    const steps = [s1, s2, s3, s4, s5];
+
+    for (let i = 1; i <= 6; i++) {
+      const stepEl = document.getElementById('step' + i);
+      const connEl = document.getElementById('conn' + (i-1));
+      if (!stepEl) continue;
+
+      if (i <= 5) {
+        if (steps[i-1]) {
+          stepEl.classList.remove('active');
+          stepEl.classList.add('done');
+          stepEl.querySelector('.step-dot').textContent = '✓';
+        } else {
+          stepEl.classList.remove('done');
+          stepEl.querySelector('.step-dot').textContent = i;
+          // mark active = first incomplete
+          const firstIncomplete = steps.findIndex(s => !s);
+          if (firstIncomplete === i - 1) stepEl.classList.add('active');
+          else stepEl.classList.remove('active');
+        }
+      } else {
+        // step 6 = send
+        const allDone = steps.every(Boolean);
+        stepEl.classList.toggle('done', allDone);
+        stepEl.classList.toggle('active', !allDone && steps.slice(0,-1).every(Boolean));
+      }
+
+      if (connEl) {
+        connEl.classList.toggle('done', i > 1 && steps[i-2]);
+      }
+    }
+  }
+
+  // ── validation ──
+  function isValidIsraeliMobile(phone) {
+    const clean = phone.replace(/[^\d]/g, '');
+    return /^05[0-9]\d{7}$/.test(clean);
+  }
+
+  function isValidEmail(email) {
+    if (!email.trim()) return true;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+  }
+
+  function showError(id, show) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? 'block' : 'none';
+  }
+
+  function validateForm() {
+    let valid = true;
+    let firstBadEl = null;
+
+    const requiredFields = ['fullName', 'phone', 'eventDate', 'eventTime', 'guestCount'];
+    requiredFields.forEach(id => {
+      const el = document.getElementById(id);
+      const bad = !el.value.toString().trim();
+      if (bad) {
+        el.classList.add('field-error');
+        if (!firstBadEl) firstBadEl = el;
+        valid = false;
+      } else {
+        el.classList.remove('field-error');
+      }
+    });
+
+    // phone
+    const phoneBad = !isValidIsraeliMobile(v('phone'));
+    showError('phoneError', phoneBad);
+    if (phoneBad) { document.getElementById('phone').classList.add('field-error'); valid = false; if (!firstBadEl) firstBadEl = document.getElementById('phone'); }
+
+    // email
+    const emailBad = !isValidEmail(v('email'));
+    showError('emailError', emailBad);
+    if (emailBad) { document.getElementById('email').classList.add('field-error'); valid = false; }
+
+    // date not in past
+    const today = new Date().toISOString().split('T')[0];
+    if (v('eventDate') && v('eventDate') < today) {
+      document.getElementById('eventDate').classList.add('field-error');
+      valid = false;
+      if (!firstBadEl) firstBadEl = document.getElementById('eventDate');
+    }
+
+    // guest count
+    const guests = parseInt(v('guestCount')) || 0;
+    const guestBad = guests < 20 || guests > 120;
+    showError('guestError', guestBad);
+    if (guestBad) { document.getElementById('guestCount').classList.add('field-error'); valid = false; if (!firstBadEl) firstBadEl = document.getElementById('guestCount'); }
+
+    // kids
+    const kids = parseInt(v('kidsCount')) || 0;
+    const kidsBad = kids > guests;
+    showError('kidsError', kidsBad);
+    if (kidsBad) valid = false;
+
+    // menu counts
+    const interYes = document.querySelector('input[name="interOption"]:checked')?.value === 'yes';
+    const saladOk = countChecked('.salad-check') === 8;
+    const mainOk  = countChecked('.main-check')  === 6;
+    const sideOk  = countChecked('.side-check')  === 2;
+    const interOk = !interYes || countChecked('.inter-check') === 3;
+
+    showError('saladError', !saladOk);
+    showError('mainError',  !mainOk);
+    showError('sideError',  !sideOk);
+    showError('interError', !interOk);
+
+    if (!saladOk || !mainOk || !sideOk || !interOk) valid = false;
+
+    if (!valid && firstBadEl) {
+      firstBadEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return valid;
+  }
+
+  // ── collect & build modal ──
+  function buildModalHTML() {
+    const isWeekend = isWeekendDay();
+    const baseAdult = isWeekend ? 310 : 265;
+    const baseKid   = isWeekend ? 220 : 180;
+    const wineYes   = document.querySelector('input[name="wineOption"]:checked')?.value === 'yes';
+    const interYes  = document.querySelector('input[name="interOption"]:checked')?.value === 'yes';
+    const perPerson = baseAdult + (wineYes ? 30 : 0) + (interYes ? 40 : 0);
+    const guests    = parseInt(v('guestCount')) || 0;
+    const kids      = parseInt(v('kidsCount'))  || 0;
+    const adults    = Math.max(guests - kids, 0);
+    const kidsTotal = kids * baseKid;
+    const totalBase = adults * perPerson + kidsTotal;
+    const service   = totalBase * 0.15;
+
+    const equipment = checked('.equipment-check').join(', ') || '—';
+    const diets     = checked('.diet-check').join(', ') || '—';
+
+    const rows = [
+      ['שם', v('fullName')],
+      ['טלפון', v('phone')],
+      ['אימייל', v('email') || '—'],
+      ['חברה/ארגון', v('company') || '—'],
+      ['תאריך', v('eventDate') + ' — ' + getDayText()],
+      ['תמחור', isWeekend ? 'שישי–שבת' : 'ראשון–חמישי'],
+      ['שעה', v('eventTime')],
+      ['מוזמנים כולל ילדים', guests],
+      ['מנות ילדים', kids],
+      ['בוגרים לחיוב', adults],
+      ['סוג אירוע', v('eventType') || '—'],
+      ['סידור ישיבה', v('seatingStyle') || '—'],
+      ['ציוד', equipment],
+    ];
+
+    let html = '';
+
+    // personal details
+    html += '<div class="modal-section"><div class="modal-section-title">פרטים אישיים ואירוע</div><div class="modal-section-content">';
+    rows.slice(0, 13).forEach(([l,r]) => {
+      html += '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #eee;"><span style="color:#888;">' + l + '</span><span style="font-weight:600;">' + r + '</span></div>';
+    });
+    html += '</div></div>';
+
+    // menu
+    const menuRows = [
+      ['יין ובירה', wineYes ? 'כן (+30 ש״ח)' : 'לא'],
+      ['סלטים', checked('.salad-check').join(' • ')],
+      ['מנות ביניים', interYes ? checked('.inter-check').join(' • ') : 'ללא'],
+      ['מנות עיקריות', checked('.main-check').join(' • ')],
+      ['תוספות', checked('.side-check').join(' • ')],
+      ['תזונה / רגישויות', diets],
+      ['אלרגיות / הערות', v('allergies') || '—'],
+      ['הערות נוספות', v('notes') || '—'],
+    ];
+
+    html += '<div class="modal-section"><div class="modal-section-title">תפריט</div><div class="modal-section-content">';
+    menuRows.forEach(([l,r]) => {
+      html += '<div style="padding:4px 0;border-bottom:1px solid #eee;"><span style="color:#888;font-size:12px;">' + l + '</span><br/><span style="font-weight:600;font-size:14px;">' + r + '</span></div>';
+    });
+    html += '</div></div>';
+
+    // price
+    html += `<div class="modal-section"><div class="modal-section-title">סיכום מחיר</div><div class="modal-section-content">`;
+    html += `<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:#888;">מחיר לבוגר</span><span style="font-weight:600;">${fmt(perPerson)}</span></div>`;
+    if (kids > 0) html += `<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:#888;">ילדים (${kids} × ${fmt(baseKid)})</span><span style="font-weight:600;">${fmt(kidsTotal)}</span></div>`;
+    html += `<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:#888;">סה״כ לפני שירות</span><span style="font-weight:600;">${fmt(totalBase)}</span></div>`;
+    html += `<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:#888;">שירות 15%</span><span style="font-weight:600;">${fmt(service)}</span></div>`;
+    html += `</div></div>`;
+
+    html += `<div class="modal-total-box"><span class="label">סה״כ כולל שירות</span><span class="value">${fmt(totalBase + service)}</span></div>`;
+    html += `<p style="font-size:11px;color:#aaa;margin-top:10px;text-align:center;">* אומדן ראשוני — אינו אישור סופי להזמנה</p>`;
+
+    // build plain text for email
+    pendingBody = buildPlainText({ isWeekend, baseAdult, baseKid, wineYes, interYes, perPerson, guests, kids, adults, kidsTotal, totalBase, service, equipment, diets });
+
+    return html;
+  }
+
+  function buildPlainText({ isWeekend, baseAdult, baseKid, wineYes, interYes, perPerson, guests, kids, adults, kidsTotal, totalBase, service, equipment, diets }) {
+    return `בקשת אירוע חדשה — מסעדת הצדף
+================================
+שם: ${v('fullName')}
+טלפון: ${v('phone')}
+אימייל: ${v('email') || '—'}
+חברה/ארגון: ${v('company') || '—'}
+תאריך: ${v('eventDate')} — ${getDayText()}
+תמחור: ${isWeekend ? 'שישי–שבת' : 'ראשון–חמישי'}
+שעה: ${v('eventTime')}
+מוזמנים: ${guests} (כולל ${kids} ילדים)
+בוגרים לחיוב: ${adults}
+סוג אירוע: ${v('eventType') || '—'}
+סידור: ${v('seatingStyle') || '—'}
+ציוד: ${equipment}
+
+--- שתייה ---
+יין ובירה: ${wineYes ? 'כן — 30 ש״ח לסועד' : 'לא'}
+
+--- סלטים (8) ---
+${checked('.salad-check').join(', ')}
+
+--- מנות ביניים ---
+${interYes ? checked('.inter-check').join(', ') : 'ללא'}
+
+--- מנות עיקריות (6) ---
+${checked('.main-check').join(', ')}
+
+--- תוספות (2) ---
+${checked('.side-check').join(', ')}
+
+--- תזונה / רגישויות ---
+${diets}
+${v('allergies') || '—'}
+
+--- הערות ---
+${v('notes') || '—'}
+
+--- מחיר משוער ---
+מחיר לבוגר: ${fmt(perPerson)}
+בוגרים: ${adults} × ${fmt(perPerson)} = ${fmt(adults * perPerson)}
+${kids > 0 ? 'ילדים: ' + kids + ' × ' + fmt(baseKid) + ' = ' + fmt(kidsTotal) : ''}
+סה"כ לפני שירות: ${fmt(totalBase)}
+שירות 15%: ${fmt(service)}
+סה"כ כולל שירות: ${fmt(totalBase + service)}
+
+* אומדן ראשוני בלבד.`.trim();
+  }
+
+  function openConfirm() {
+    document.getElementById('confirmBody').innerHTML = buildModalHTML();
+    document.getElementById('confirmModal').style.display = 'flex';
+  }
+
+  function closeConfirm() {
+    document.getElementById('confirmModal').style.display = 'none';
+  }
+
+  const EMAIL_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbz3-tRJ7FyKBA0_YczvMIIH4mNzId53Rp9kHnTg5_qgQlM8khRadGgXb-qEf2hIJh0KTg/exec';
+
+  async function sendForm() {
+    const btn = document.getElementById('finalSendBtn');
+    const spinner = document.getElementById('sendSpinner');
+    const btnText = document.getElementById('sendBtnText');
+
+    btn.disabled = true;
+    spinner.style.display = 'block';
+    btnText.textContent = 'שולח...';
+
+    try {
+      const structuredData = {
+        full_name: v('fullName'),
+        phone: v('phone'),
+        email: v('email'),
+        company: v('company'),
+        event_date: v('eventDate'),
+        event_time: v('eventTime'),
+        guest_count: parseInt(v('guestCount')) || 0,
+        kids_count: parseInt(v('kidsCount')) || 0,
+        event_type: v('eventType'),
+        seating_style: v('seatingStyle'),
+        equipment: checked('.equipment-check'),
+        wine_option: document.querySelector('input[name="wineOption"]:checked')?.value === 'yes',
+        inter_option: document.querySelector('input[name="interOption"]:checked')?.value === 'yes',
+        salads: checked('.salad-check'),
+        inter_dishes: checked('.inter-check'),
+        main_dishes: checked('.main-check'),
+        side_dishes: checked('.side-check'),
+        diet_flags: checked('.diet-check'),
+        allergies: v('allergies'),
+        notes: v('notes'),
+        source: 'github-menu-form',
+        github_submission_id: 'zedef-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8),
+        submitted_at: new Date().toISOString(),
+        email_body: pendingBody
+      };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+      const response = await fetch(EMAIL_ENDPOINT_URL, {
+        method: 'POST',
+        mode: 'cors',
+        redirect: 'follow',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(structuredData),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      const resultText = await response.text();
+      let result;
+
+      try {
+        result = JSON.parse(resultText);
+      } catch (parseErr) {
+        throw new Error('שרת השליחה החזיר תשובה לא תקינה.');
+      }
+
+      if (!response.ok || !result.ok) {
+        throw new Error(result.error || 'שרת השליחה לא אישר שהמייל נשלח.');
+      }
+
+      closeConfirm();
+      document.getElementById('eventForm').style.display = 'none';
+      document.getElementById('thankYou').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (err) {
+      console.error(err);
+
+      let msg = 'הטופס לא נשלח. לא הוצג אישור הצלחה כי לא התקבל אישור אמיתי משרת השליחה.';
+      if (err.name === 'AbortError') {
+        msg = 'הטופס לא נשלח. שרת השליחה לא הגיב בזמן.';
+      }
+
+      alert(msg);
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.textContent = 'מאשר/ת ושולח/ת';
+    }
+  }
+
+  document.getElementById('eventForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (validateForm()) openConfirm();
+  });
+
+  // close modal on backdrop click
+  document.getElementById('confirmModal').addEventListener('click', function(e) {
+    if (e.target === this) closeConfirm();
+  });
+
+  // ── init ──
+  updateSummary();
+  updateProgress();
+</script>
+</body>
+</html>
