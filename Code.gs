@@ -1,10 +1,3 @@
-/**
- * Zedef Event Menu — Apps Script Backend
- * 1) Create a Google Sheet.
- * 2) Extensions → Apps Script → paste this file.
- * 3) Deploy → Web app → Execute as: Me, Who has access: Anyone.
- * 4) Put the deployment URL in index.html/admin.html if it changed.
- */
 
 const SHEET_NAME = 'Events';
 const ADMIN_EMAIL = 'zedefr@gmail.com';
@@ -33,11 +26,36 @@ function doPost(e) {
 
 function doGet(e) {
   try {
-    const action = (e.parameter && e.parameter.action) || 'list';
-    const data = action === 'list' ? listEvents_() : { ok: true };
-    return json_(data, e.parameter && e.parameter.callback);
+    e = e || {};
+    const params = e.parameter || {};
+    const action = params.action || 'list';
+
+    let data;
+
+    if (action === 'list') {
+      data = listEvents_();
+    } else if (action === 'ping') {
+      data = {
+        ok: true,
+        message: 'Zedef Events API is working',
+        time: new Date().toISOString()
+      };
+    } else {
+      data = {
+        ok: true,
+        message: 'Unknown action',
+        action: action
+      };
+    }
+
+    return json_(data, params.callback);
+
   } catch (err) {
-    return json_({ ok: false, error: String(err && err.message ? err.message : err) }, e.parameter && e.parameter.callback);
+    const params = (e && e.parameter) ? e.parameter : {};
+    return json_({
+      ok: false,
+      error: String(err && err.message ? err.message : err)
+    }, params.callback);
   }
 }
 
@@ -170,6 +188,11 @@ function join_(v) { return Array.isArray(v) ? v.join(' • ') : (v || ''); }
 function bool_(v) { return v === true || v === 'true' || v === 'yes' || v === 'כן' || v === 1; }
 
 function json_(obj, callback) {
-  const text = callback ? `${callback}(${JSON.stringify(obj)});` : JSON.stringify(obj);
-  return ContentService.createTextOutput(text).setMimeType(callback ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON);
+  const text = callback
+    ? callback + '(' + JSON.stringify(obj) + ');'
+    : JSON.stringify(obj);
+
+  return ContentService
+    .createTextOutput(text)
+    .setMimeType(callback ? ContentService.MimeType.JAVASCRIPT : ContentService.MimeType.JSON);
 }
